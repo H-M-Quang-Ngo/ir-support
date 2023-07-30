@@ -1,0 +1,28 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "ir-support"
+version = "1.0.0"
+description = "Python package including some classes & functions supporting the subject 41013 Industrial Robotics at UTS, along with the Robotics Toolbox for Python"
+authors = ["Quang Ngo <quang.ngohominh@gmail.com>"]
+packages = [{include = "ir_support"}]
+
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.8,<3.11"
+pandas = "^2.0.3"
+trimesh = "^3.22.5"
+plyfile = "^1.0.1"
+keyboard = "^0.13.5"
+
+
