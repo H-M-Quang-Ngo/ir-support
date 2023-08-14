@@ -1,7 +1,7 @@
 # Require libraries
 from roboticstoolbox.backends import PyPlot
 from scipy import linalg
-from ..functions import make_ellipsoid
+from ir_support.functions import make_ellipsoid
 import numpy as np
 import matplotlib.pyplot as plt
 import roboticstoolbox as rtb

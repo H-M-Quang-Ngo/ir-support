@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ir-support"
-version = "1.0.0"
+version = "1.0.1"
 description = "Python package including some classes & functions supporting the subject 41013 Industrial Robotics at UTS, along with the Robotics Toolbox for Python"
 authors = ["Quang Ngo <quang.ngohominh@gmail.com>"]
 packages = [{include = "ir_support"}]
@@ -24,5 +24,9 @@ pandas = "^2.0.3"
 trimesh = "^3.22.5"
 plyfile = "^1.0.1"
 keyboard = "^0.13.5"
+scikit-image = "^0.21.0"
+more-itertools = "^10.0.0"
+open3d = "^0.17.0"
 
-
+[tool.poetry.urls]
+issues = "https://github.com/H-M-Quang-Ngo/ir-support"
