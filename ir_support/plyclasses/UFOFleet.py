@@ -6,6 +6,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import spatialmath.base as spbase
+from typing import Optional, Union, List, Tuple
 from spatialmath import SE3
 from ir_support.functions import line_plane_intersection
 import ir_support.plyprocess as plyp
@@ -14,11 +15,20 @@ import os
 # ---------------------------------------------------------------------------------------#
 class UFOFLeet:
     '''
-    Generate a random herd of ufos
-    :num_ufos: number of ufos, default is 2
-    :plot_type: plotting type for ufo object, 'scatter'(default) or 'surface'
+    A random fleet of ufos
     '''
-    def __init__(self, num_ufos = 2, plot_type = 'scatter'): # Default input ufo number is 2, scatter plot type
+    def __init__(self, num_ufos:int = 2, 
+                 plot_type:Optional[str] = 'scatter'): # Default input ufo number is 2, scatter plot type
+        """
+        Initialize the UFO fleet simulation
+
+        Parameters:
+        ____________
+        `num_ufos`: int, optional
+            Number of UFOs. Default is 2
+        `plot_type`: str, optional
+            Plotting type for UFO object, 'scatter' or 'surface'. Default is 'scatter'
+        """
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self._plyfile = os.path.join(current_dir, "Haneubu+uf.ply")
         self._ranges = [-5, 5, -5, 5, 0, 10] # Visualizable range of the field
@@ -80,6 +90,9 @@ class UFOFLeet:
                                                   faces_color= self._ufo_plotdata['faces_color'], output= 'surface', linewidth = 0.05)
          
     def plot_single_random_step(self):
+        """
+        Plot a single random step for all UFOs
+        """
         for i in range(self.num_ufos):
             # If either 0 or -1 health left then don't plot a move
             if self.ufo_list[i]['health'] < 1:
@@ -92,11 +105,24 @@ class UFOFLeet:
             self._generate_ufos_trajectory()
             self._single_call = 0
     
-    def animate(self, ufo_index):
+    def animate(self, ufo_index:int):
+        """
+        Animate the UFO movement at index `ufo_index`
+        """
         self.ufo_list[ufo_index]['vertices'] = plyp.transform_vertices(self._ufo_plotdata['vertices'], self.ufo_list[ufo_index]['base'])
         plyp.set_vertices(self.ufo_list[ufo_index]['plot_object'], self.ufo_list[ufo_index]['vertices'], self._ufo_plotdata['faces'])
 
-    def test_plot_many_step(self, num_steps, delay):
+    def test_plot_many_step(self, num_steps:int, delay:float):
+        """
+        Test the plot of many steps for all UFOs
+
+        Parameters:
+        ____________
+        `num_steps`: int
+            Number of steps to plot
+        `delay`: float
+            Delay between each step
+        """
         for _ in range(num_steps):
             self.plot_single_random_step()
             plt.pause(delay)
@@ -116,7 +142,11 @@ class UFOFLeet:
                 # Don't try and remove again
                 ufo['health'] = -1
 
-    def set_hit(self, ufo_hit_index):
+    def set_hit(self, ufo_hit_index:int):
+        """
+        Set the UFOs at index `ufo_hit_index` as getting hit
+
+        """
         if ufo_hit_index is []:
             return None
         for index in ufo_hit_index:
@@ -140,6 +170,9 @@ class UFOFLeet:
         self._remove_dead()
     
     def is_destroy_all(self):
+        """
+        Check if all UFOs are destroyed
+        """
         is_destroy_all = True
         for ufo in self.ufo_list:
             if ufo['health'] >= 1: 
@@ -171,6 +204,7 @@ class UFOFLeet:
     def _generate_random_transform(self):
         '''
         Generate a random transform from given range in xy plane
+
         :return: SE3 transformation matrix
         :rtype: SE3 object NDArray object
         '''
@@ -183,7 +217,22 @@ class UFOFLeet:
         return transform.A
 
 # ---------------------------------------------------------------------------------------#
-def check_intersections(ee_tr, cone_ends, ufo_fleet):
+def check_intersections(ee_tr:np.ndarray, 
+                        cone_ends:List[np.ndarray], 
+                        ufo_fleet:UFOFLeet) -> List[int]:
+    """
+    Check for UFOs hit by the ray
+
+    Parameters:
+    ____________
+    `ee_tr`: ndarray
+        End-effector transformation matrix
+    `cone_ends`: list
+        List of end points of the cone
+    `ufo_fleet`: UFOFleet
+        UFO fleet object
+    """
+
     ufo_hit_index = []
     
     # Ray from the cone
@@ -207,7 +256,8 @@ def check_intersections(ee_tr, cone_ends, ufo_fleet):
     return ufo_hit_index
 
 
-def distance_between_points(point1, point2):
+def distance_between_points(point1:Union[np.ndarray, List[float]], 
+                            point2:Union[np.ndarray, List[float]]) -> float:
     # Convert the points to NumPy arrays
     point1 = np.array(point1)
     point2 = np.array(point2)
@@ -217,44 +267,9 @@ def distance_between_points(point1, point2):
     return distance
 
 # ---------------------------------------------------------------------------------------#
-# def line_plane_intersection(plane_normal, point_on_plane, point1_on_line, point2_on_line):
-#     """
-#     Given a plane (normal and point) and two points that make up another line, get the intersection
-#     - Check == 0 if there is no intersection
-#     - Check == 1 if there is a line plane intersection between the two points
-#     - Check == 2 if the segment lies in the plane (always intersecting)
-#     - Check == 3 if there is intersection point which lies outside line segment
-#     """
-
-#     intersection_point = [0,0,0]
-#     u = np.array(point2_on_line) - np.array(point1_on_line)
-#     w = np.array(point1_on_line) - np.array(point_on_plane)
-#     D = np.dot(np.array(plane_normal), u)
-#     N = -np.dot(np.array(plane_normal), w)
-#     check = 0
-    
-#     if np.abs(D) < pow(10,-7):                          # The segment is parallel to plane
-#         if N == 0:                                      # The segment lies in plane
-#             check = 2
-#             return intersection_point, check
-#         else:
-#             return intersection_point, check            # No intersection
-
-#     # Compute the intersection parameter
-#     sI = N/D
-#     intersection_point = point1_on_line + sI * u
-
-#     if sI < 0 or sI > 1:
-#         check = 3                                       # The intersection point  lies outside the segment, so there is no intersection
-#     else:
-#         check = 1
-    
-#     return intersection_point, check
-
-# ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
-    ufo_herd = UFOFLeet(10,'surface')
-    input("Press any key to continue\n")
-    ufo_herd.test_plot_many_step(100, 0.01)
-    print(ufo_herd.ufo_list[0]['base'])
+    ufo_fleet = UFOFLeet(10,'surface')
+    input("Press Enter to continue\n")
+    ufo_fleet.test_plot_many_step(100, 0.01)
+    print("Pose of the first UFO:\n",SE3(ufo_fleet.ufo_list[0]['base']))
     plt.show()

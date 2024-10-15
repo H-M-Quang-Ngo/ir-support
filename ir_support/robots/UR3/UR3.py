@@ -15,26 +15,27 @@ import os
 from math import pi
 
 # -----------------------------------------------------------------------------------#
-class UR3(DHRobot3D):
-    """ 
-    Example usage:
-    >>> from ir-support import UR3
-    >>> import swift
+class UR3(DHRobot3D):    
+    def __init__(self):     
+        """ 
+            UR3 Robot by DHRobot3D class
+            
+            Example usage:
+            >>> from ir-support import UR3
+            >>> import swift
 
-    >>> r = UR3()
-    >>> q = [0,-pi/2,pi/4,0,0,0]r
-    >>> r.q = q
-    >>> q_goal = [r.q[i]-pi/4 for i in range(r.n)]
-    >>> env = swift.Swift()
-    >>> env.launch(realtime= True)
-    >>> r.add_to_env(env)
-    >>> qtraj = rtb.jtraj(r.q, q_goal, 50).q
-    >>> for q in qtraj:r
-    >>>    r.q = q
-    >>>    env.step(0.02)
-
-    """     
-    def __init__(self):         
+            >>> r = UR3()
+            >>> q = [0,-pi/2,pi/4,0,0,0]r
+            >>> r.q = q
+            >>> q_goal = [r.q[i]-pi/4 for i in range(r.n)]
+            >>> env = swift.Swift()
+            >>> env.launch(realtime= True)
+            >>> r.add_to_env(env)
+            >>> qtraj = rtb.jtraj(r.q, q_goal, 50).q
+            >>> for q in qtraj:r
+            >>>    r.q = q
+            >>>    env.step(0.02)
+        """     
         # DH links
         links = self._create_DH()     
         

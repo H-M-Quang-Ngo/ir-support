@@ -10,6 +10,7 @@ import spatialgeometry as geometry
 import spatialmath.base as spb
 import os
 from abc import ABC
+from typing import List, Dict, Union, Tuple, Optional
 
 # Useful variables
 from math import pi
@@ -17,22 +18,46 @@ from math import pi
 # -----------------------------------------------------------------------------------#
 class DHRobot3D(rtb.DHRobot, ABC):
     """
-    This abstract class inherits from the DHRobot class of the `Robotics Toolbox in Python`\n 
-    It represents a 3D Robot defined in standard DH parameters, that can be displayed in `Swift` simulator
+    This abstract class inherits from the DHRobot class of the `Robotics Toolbox in Python`.
+    It represents a 3D Robot defined in standard DH parameters, that can be displayed in the `Swift` simulator.
 
-        Parameters:
-        -----------------------------------------------------------
-        - `links`: list of DH links `roboticstoolbox.DHLink` to construct the robot
-        - `link3D_names`: dictionary for names of the robot object in the directory, e.g. {link0: 'base.dae', link1: 'shoulder.dae'...}
-        - `link3D_dir`: absolute path to the 3D files
-        - `name`: name of the robot 
-        - `qtest`: an input joint config as a list to calibrate the 3D model. Number of elements in `qtest` is number of robot joints
-        - `qtest_transforms`: transforms of the 3D models to match the config by `qtest`.\n 
-                            Number of elements in `qtest_transforms`= number of elements in `q_test` plus 1.\n
-                            The first element is the transform of the global coordinate to the robot.  
+    Parameters:
+    -----------------------------------------------------------
+    - `links`: list of DH links `roboticstoolbox.DHLink` to construct the robot
+    - `link3D_names`: dictionary for names of the 3D file for each robot link in the directory, e.g. {link0: 'base', link1: 'shoulder'...}. File extension can be ply, dae, stl
+    - `link3D_dir`: absolute path to the 3D files
+    - `name`: name of the robot 
+    - `qtest`: an input joint config as a list to calibrate the 3D model. Number of elements in `qtest` is the number of robot joints
+    - `qtest_transforms`: transforms of the 3D models to match the config by `qtest`.
+                          Number of elements in `qtest_transforms` = number of elements in `qtest` plus 1.
+                          The first element is the transform of the global coordinate to the robot.
     """
 
-    def __init__(self, links, link3D_names, link3d_dir, name = None, qtest = None, qtest_transforms = None):
+    def __init__(self, links:List[rtb.DHLink], 
+                 link3D_names:Dict[str, Union[str, Tuple[float, float, float, float]]], 
+                 link3d_dir: str, 
+                 name: Optional[str] = None, 
+                 qtest: Optional[List[float]] = None, 
+                 qtest_transforms: Optional[List[np.ndarray]] = None):
+        """
+        Initialize the 3D robot with the given DH links and 3D models
+
+        Parameters:
+        ____________
+        `robot`: rtb.DHRobot
+            DHRobot object
+        `link3D_names`: dict
+            Dictionary for names of the 3D file for each robot link in the directory, e.g. {link0: 'base', link1: 'shoulder'...}. File extension can be ply, dae, stl
+        `link3D_dir`: str
+            Absolute path to the 3D files
+        `name`: str, optional
+            Name of the robot. Default is None
+        `qtest`: list, optional
+            An input joint config as a list to calibrate the 3D model. Number of elements in `qtest` is the number of robot joints. Default is None
+        `qtest_transforms`: list, optional
+            Transforms of the 3D models to match the config by `qtest`. Number of elements in `qtest_transforms` = number of elements in `qtest` plus 1.
+            The first element is the transform of the global coordinate to the robot. Default is None
+        """
 
         super().__init__(links, name = name)
         self.link3D_names = link3D_names
@@ -51,7 +76,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
     def _apply_3dmodel(self):
         """
         Collect the corresponding 3D model for each link.\n
-        Then get the relation between the DH transforms for each link and the pose of its corresponding 3D object
+        Then compute the relation between the DH transforms for each link and the pose of its corresponding 3D object
         """
         # current_path = os.path.abspath(os.path.dirname(__file__))
         self.links_3d = []
@@ -76,7 +101,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
                                    for i in range(len(link_transforms))] 
     
     # -----------------------------------------------------------------------------------#
-    def _update_3dmodel(self):
+    def _update_3dmodel(self)->None:
         """
         Update the robot's 3D model based on the relation matrices
         """
@@ -85,7 +110,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
             link.T = link_transforms[i] @ self._relation_matrices[i]
     
     # -----------------------------------------------------------------------------------#
-    def _get_transforms(self,q):
+    def _get_transforms(self,q)->List[np.ndarray]:
         """
         Get the transform list represent each link
         """
@@ -96,7 +121,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
         return transforms
     
     # -----------------------------------------------------------------------------------#
-    def add_to_env(self, env):
+    def add_to_env(self, env:swift.Swift)->None:
         """
         Add the robot into a input Swift environment
         """
@@ -111,7 +136,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
         """
         Overload `=` operator so the object can update its 3D model whenever a new joint state is assigned
         """
-        if name == 'q' and hasattr(self, 'q'):
+        if name == 'q' and hasattr(self, 'q') or name == 'base' and hasattr(self, 'base'):
             self._update_3dmodel()  # Update the 3D model before setting the attribute
         super().__setattr__(name, value)  # Call the base class method to set the attribute
 

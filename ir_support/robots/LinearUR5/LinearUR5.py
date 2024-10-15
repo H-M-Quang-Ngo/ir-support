@@ -15,13 +15,13 @@ import os
 from math import pi
 
 # -----------------------------------------------------------------------------------#
-class LinearUR5(DHRobot3D):
-    """ 
-    UR5 Robot on a Linear Rail.
-    See the use of `UR3`, `UR5` and base class `DHRobot3D`
+class LinearUR5(DHRobot3D):   
+    def __init__(self):    
+        """ 
+        UR5 Robot on a Linear Rail.
+        See the use of `UR3`, `UR5` and base class `DHRobot3D`
 
-    """     
-    def __init__(self):         
+        """       
         # DH links
         links = self._create_DH()     
         
@@ -75,6 +75,7 @@ class LinearUR5(DHRobot3D):
         env.launch(realtime= True)
         self.q = self._qtest        
         self.add_to_env(env)
+
         q_goal = [self.q[i]-pi/3 for i in range(self.n)]
         q_goal[0] = -0.8 # Move the rail link
         qtraj = rtb.jtraj(self.q, q_goal, 50).q
