@@ -1,12 +1,27 @@
 import numpy as np
+from typing import Union, List, Tuple
 
-def line_plane_intersection(plane_normal, point_on_plane, point1_on_line, point2_on_line):
+def line_plane_intersection(plane_normal:Union[np.ndarray, List[float]], 
+                            point_on_plane:Union[np.ndarray, List[float]],
+                            point1_on_line:Union[np.ndarray, List[float]], 
+                            point2_on_line:Union[np.ndarray, List[float]],)->Tuple[np.ndarray, int]:
     """
     Given a plane (normal and point) and two points that make up another line, get the intersection
     - Check == 0 if there is no intersection
     - Check == 1 if there is a line plane intersection between the two points
     - Check == 2 if the segment lies in the plane (always intersecting)
     - Check == 3 if there is intersection point which lies outside line segment
+
+    Parameters
+    ----------
+    plane_normal : np.ndarray
+        Normal vector of the plane
+    point_on_plane : np.ndarray
+        Point on the plane
+    point1_on_line : np.ndarray
+        First point on the line
+    point2_on_line : np.ndarray
+        Second point on the line
     """
 
     intersection_point = [0,0,0]

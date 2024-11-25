@@ -12,7 +12,7 @@ then
 
 $ **pip install ir-support**
 
-Currently, it works on Python 3.8 - 3.10
+Currently, it gets tested on Python 3.8 - 3.11
 
 # Contact
  - quang.ngohominh@gmail.com

@@ -1,7 +1,8 @@
 ##  @file
-#   @brief This file contains the necessary functions forplotting ply file using plyfile package.
+#   @brief This file contains the necessary functions for plotting ply file using plyfile package.
 #   @author Ho Minh Quang Ngo
 #   @date Jul 25, 2023
+from typing import Optional, Union, List, Any
 import numpy as np
 import matplotlib.pyplot as plt
 import warnings
@@ -11,11 +12,15 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Path3DCollection
 from trimesh import Trimesh
 
 # ---------------------------------------------------------------------------------------#
-def place_object(ply_file_path=None, 
-                 vertices=None, vertices_color=None, 
-                 faces = None, faces_color = None, 
-                 output = 'scatter', ax = None, simplified = 1,
-                 **kwargs):
+def place_object(ply_file_path: Optional[str] = None, 
+                 vertices: Optional[np.ndarray] = None, 
+                 vertices_color: Optional[np.ndarray] = None, 
+                 faces: Optional[np.ndarray] = None, 
+                 faces_color: Optional[np.ndarray] = None, 
+                 output: str = 'scatter', 
+                 ax: Optional[plt.Axes] = None, 
+                 simplified: int = 1,
+                 **kwargs: Any) -> Union[Path3DCollection, Poly3DCollection]:
     """
     Read a ply file and plot that object into current active axes. If there is no current active axes, a new one is created
     
@@ -100,7 +105,7 @@ def place_object(ply_file_path=None,
     return plot_object
 
 # ---------------------------------------------------------------------------------------#
-def get_ply_data(ply_file_path, simplified = 1):
+def get_ply_data(ply_file_path:str, simplified:float = 1):
     """
     Read a ply file and get the vertices, faces and vertices color, faces color data
     
@@ -171,7 +176,7 @@ def get_ply_data(ply_file_path, simplified = 1):
             'faces': faces, 'faces_color': faces_color}
 
 # ---------------------------------------------------------------------------------------#
-def get_vertices(scatter_object):
+def get_vertices(scatter_object: Path3DCollection) -> np.ndarray:
     """
     Get vertices array of a Path3DCollection object
 
@@ -190,7 +195,9 @@ def get_vertices(scatter_object):
     return np.transpose(np.vstack((x_array, y_array, z_array)))
 
 # ---------------------------------------------------------------------------------------#
-def set_vertices(input_object, vertices, faces = None):
+def set_vertices(input_object: Union[Path3DCollection, Poly3DCollection], 
+                 vertices: np.ndarray, 
+                 faces: Optional[np.ndarray] = None) -> None:
     """
     Update the pointcloud of the object by an new array of vertices (3xN or Nx3)
     
@@ -216,7 +223,8 @@ def set_vertices(input_object, vertices, faces = None):
     else:
         raise ValueError('Unknown type of object!')
 
-def scale_object(input_object, scale):
+def scale_object(input_object: Path3DCollection, 
+                 scale: Union[List[float], float]) -> None:
     """
     Scale an object by a scale, which is a list [x,y,z] or a scalar
 
@@ -249,7 +257,8 @@ def scale_object(input_object, scale):
     else:
         raise ValueError('Invalid input object type')
 
-def transform_vertices(vertices, transform):
+def transform_vertices(vertices: np.ndarray, 
+                       transform: np.ndarray) -> np.ndarray:
     """
     Update an array of vertices (Nx3) by a transform
 
@@ -279,7 +288,8 @@ def transform_vertices(vertices, transform):
 
     return new_vertices[:,:-1]
 
-def move_object(scatter_object, transform):
+def move_object(scatter_object: Path3DCollection, 
+                transform: np.ndarray) -> None:
     """
     Move the input object by a transform 
 
@@ -307,7 +317,7 @@ def move_object(scatter_object, transform):
     # Update the object position
     scatter_object._offsets3d = (vertices[0, :], vertices[1, :], vertices[2, :])
 
-def default_color_array(size):
+def default_color_array(size: int) -> np.ndarray:
     """
     Create an array of size x 3 RGB color [0-1] 
     """

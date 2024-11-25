@@ -1,4 +1,5 @@
 # Require libraries
+from typing import Optional, Union
 from roboticstoolbox.backends import PyPlot
 from scipy import linalg
 from ir_support.functions import make_ellipsoid
@@ -11,9 +12,30 @@ import warnings
 # ---------------------------------------------------------------------------------------#
 class EllipsoidRobot:
     """
-    Generate and animate a robot with ellipsoid for each link
+    Generate and animate a DH skeleton robot with ellipsoid for each link
     """
-    def __init__(self, robot, q = None, fig = None, default_height = 0.1, default_width = 0.1):
+    def __init__(self, robot: rtb.DHRobot, 
+                 q: Optional[Union[np.ndarray, list]] = None, 
+                 fig: Optional[PyPlot.PyPlot] = None, 
+                 default_height: float = 0.1, 
+                 default_width: float = 0.1):
+        """
+        Generate and animate a DH skeleton robot with ellipsoid for each link
+
+        Parameters
+        ____________
+        robot: rtb.DHRobot
+            Robot object
+        q: list or np.ndarray, optional
+            Joint configuration of the robot. Default is None
+        fig: PyPlot.PyPlot, optional
+            Figure object. Default is None
+        default_height: float, optional
+            Default height of the ellipsoid. Default is 0.1
+        default_width: float, optional
+            Default width of the ellipsoid. Default is 0.1
+        """
+        
         if isinstance(robot, rtb.DHRobot):
             self.robot = robot 
         else:
@@ -54,9 +76,17 @@ class EllipsoidRobot:
 
         self.ellipsoid_matrices = []
         for ellipsoid in ellipsoids_info:
-            ax1 = ellipsoid['ax1'] / linalg.norm(ellipsoid['ax1'])
-            ax2 = ellipsoid['ax2'] / linalg.norm(ellipsoid['ax2'])
-            ax3 = ellipsoid['ax3'] / linalg.norm(ellipsoid['ax3'])
+            ax1 = ellipsoid['ax1']
+            ax2 = ellipsoid['ax2']
+            ax3 = ellipsoid['ax3']
+
+            # Normalize ax1, ax2, ax3 if their norms are not zero
+            if linalg.norm(ax1) != 0:
+                ax1 = ax1 / linalg.norm(ax1)
+            if linalg.norm(ax2) != 0:
+                ax2 = ax2 / linalg.norm(ax2)
+            if linalg.norm(ax3) != 0:
+                ax3 = ax3 / linalg.norm(ax3)
 
             axes_matrix = np.column_stack((ax1, ax2, ax3))
             diagonal_matrix = np.diag(np.square([np.linalg.norm(ellipsoid['ax1']/2), 
@@ -97,19 +127,35 @@ class EllipsoidRobot:
         Move the ellipsoids around with robot
         """
         self.fig._add_teach_panel(self.robot, self.robot.q)
-        print("Teach mode. Try Enter to stop!")
-        while not keyboard.is_pressed('enter'):
+        print("Teach mode. Press Enter to discard ellipsoids!")
+
+        # Set up a flag to stop the loop
+        stop_flag = False
+
+        # Define a callback function to set the stop flag when Enter is pressed
+        def on_enter_press(event):
+            nonlocal stop_flag
+            stop_flag = True
+
+        # Register the callback function with the keyboard listener
+        keyboard.on_press_key("enter", on_enter_press)
+
+        # Main loop to update the ellipsoids
+        while not stop_flag:
             self.ellipsoid_for_robot_links(self.robot.q)
             self.plot_ellipsoids()
             self.fig.step(0.05)
+
+        # Clean up
         self.remove_ellipsoid()
+        keyboard.unhook_all()  # Unhook all keyboard listeners
 
 # ---------------------------------------------------------------------------------------#
 if __name__ == "__main__":
     robot = rtb.models.DH.Planar3()
-    q = [0.5,0.5,0]
+    q = robot.q
     fig = robot.plot(q)
-    ellipsoid_robot = EllipsoidRobot(robot, fig = fig, default_height= 0.25, default_width= 0.25)
+    ellipsoid_robot = EllipsoidRobot(robot, fig = fig, default_height= 0.15, default_width= 0.15)
     input("Enter to try teach!\n")
     ellipsoid_robot.teach()
     fig.hold()

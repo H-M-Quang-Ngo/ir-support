@@ -7,17 +7,27 @@ import numpy as np
 import matplotlib.pyplot as plt
 import spatialmath.base as spbase
 from spatialmath import SE3
+from typing import Optional, Union, List, Tuple
 import ir_support.plyprocess as plyp
 import os
 
 # ---------------------------------------------------------------------------------------#
 class RobotCow:
     '''
-    Generate a random herd of cow
-    :num_cow: number of cow, default is 2
-    :plot_type: plotting type for cow object, 'scatter' or 'surface'(default)
+    A random herd of cows
     '''
-    def __init__(self, num_cows = 2, plot_type = 'surface'): # Default input cow number is 2
+    def __init__(self, num_cows:int = 2, # Default input cow number is 2
+                 plot_type:Optional[str]= 'surface'): 
+        """
+        Initialize the cow herd simulation
+
+        Parameters:
+        ____________
+        `num_cows`: int, optional
+            Number of cows. Default is 2
+        `plot_type`: str, optional
+            Plotting type for cow object, 'scatter' or 'surface'. Default is 'surface'
+        """
         current_dir = os.path.dirname(os.path.abspath(__file__))
         self._plyfile = os.path.join(current_dir, "cow.ply")
         self._ranges = [-5, 5, -5, 5, 0, 10] # Visualizable range of the field
@@ -76,6 +86,9 @@ class RobotCow:
                 cow['plot_object'].set_facecolors((0.5,0.1,0.1))
 
     def plot_single_random_step(self):
+        """
+        Plot a single random step for all cows
+        """
         for i in range(self.num_cows):
             self.cow_list[i]['base'] = self._traj_list[i][self._single_call] 
             self.animate(i)
@@ -85,11 +98,24 @@ class RobotCow:
             self._generate_cows_trajectory()
             self._single_call = 0
     
-    def animate(self, cow_index):
+    def animate(self, cow_index:int):
+        """
+        Animate the cow at index `cow_index`
+        """
         self.cow_list[cow_index]['vertices'] = plyp.transform_vertices(self._cow_plotdata['vertices'], self.cow_list[cow_index]['base'])
         plyp.set_vertices(self.cow_list[cow_index]['plot_object'], self.cow_list[cow_index]['vertices'], self._cow_plotdata['faces'])
 
-    def test_plot_many_step(self, num_steps, delay):
+    def test_plot_many_step(self, num_steps:int, delay:float):
+        """
+        Test the plot of many steps for all cows
+
+        Parameters:
+        ____________
+        `num_steps`: int
+            Number of steps to plot
+        `delay`: float
+            Delay between each step
+        """
         for _ in range(num_steps):
             self.plot_single_random_step()
             plt.pause(delay)
@@ -134,16 +160,18 @@ class RobotCow:
         return transform.A
 
 # ---------------------------------------------------------------------------------------#
-def place_fence(position = [0,0,0], orientation = 0, plot_type = 'surface'):
+def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0, 0], 
+                orientation: Optional[float] = 0, 
+                plot_type: Optional[str] = 'surface'):
     '''
     Place a fence read from 'fenceFinal.ply' into current environment
 
-    :param position: position of the fence
+    :param position: position of the fence. Default is [0,0,0]
     :type position: list or tuple of 3
-    :param orientation: yaw angle in degree
+    :param orientation: yaw angle in degree. Default is 0
     :type orientation: float
     :return: an object into current drawing environment
-    :param plot_type: 'scatter' or 'surface'
+    :param plot_type: 'scatter' or 'surface'. Default is 'surface'
     :rtype: 3Dplot object
     '''
     if not hasattr(place_fence,'vertices') and not hasattr(place_fence, 'vertices_color'):

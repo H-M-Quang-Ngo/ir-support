@@ -3,7 +3,7 @@ from roboticstoolbox import DHLink, DHRobot
 # Useful variables
 from math import pi, radians
 
-def schunk_UTS_v2_0():
+def schunk_UTS_v2_0()->DHRobot:
     l1 = DHLink(d=-0.38, a=0, alpha=-pi/2, offset=0, qlim=[radians(-117), radians(117)])
     l2 = DHLink(d=0, a=0.385, alpha=pi, offset=pi/2, qlim=[radians(-115), radians(115)])
     l3 = DHLink(d=0, a=0, alpha=pi/2, offset=-pi/2, qlim=[radians(-110), radians(110)])

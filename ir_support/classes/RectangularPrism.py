@@ -4,9 +4,24 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from mpl_toolkits.mplot3d import Axes3D
 
 class RectangularPrism:
-    def __init__(self, width=1, breadth=1, height=1, color=[0, 0, 1], center=[0, 0, 0]):
+    """
+    A class to represent a rectangular prism.
+    """
+    def __init__(self, width:float=1, length:float=1, height:float=1, color=[0, 0, 1], center=[0, 0, 0]):
+        """
+        Constructs all the necessary attributes for the rectangular prism object.
+
+        Parameters
+        ----------
+        length : float
+            The length of the rectangular prism.
+        width : float
+            The width of the rectangular prism.
+        height : float
+            The height of the rectangular prism. 
+        """
         self.width = width
-        self.breadth = breadth
+        self.length = length
         self.height = height
         self.center = center
         self.color = color
@@ -23,15 +38,15 @@ class RectangularPrism:
     def _calculate_vertices(self):
         vertices = np.zeros((8, 3))
         vertices[1] = [self.width, 0, 0]
-        vertices[2] = [self.width, self.breadth, 0]
-        vertices[3] = [0, self.breadth, 0]
+        vertices[2] = [self.width, self.length, 0]
+        vertices[3] = [0, self.length, 0]
         vertices[4] = [0, 0, self.height]
         vertices[5] = [self.width, 0, self.height]
-        vertices[6] = [self.width, self.breadth, self.height]
-        vertices[7] = [0, self.breadth, self.height]
+        vertices[6] = [self.width, self.length, self.height]
+        vertices[7] = [0, self.length, self.height]
         
         # Shift vertices based on the center point
-        vertices -= np.array([self.width/2, self.breadth/2, self.height/2])  # Subtract half of width, breadth, and height
+        vertices -= np.array([self.width/2, self.length/2, self.height/2])  # Subtract half of width, length, and height
     
         # Translate the vertices to the specified center
         vertices += np.array(self.center)
@@ -44,7 +59,7 @@ class RectangularPrism:
             [0, 4, 7, 3],  # x == 0
             [0, 1, 5, 4],  # y == 0
             [2, 6, 5, 1],  # x == width
-            [3, 7, 6, 2],  # y == breadth
+            [3, 7, 6, 2],  # y == length
             [4, 5, 6, 7]   # z == height
         ]
         return faces

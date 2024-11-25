@@ -1,9 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def draw_possible_ellipse_given_foci(focus1, focus2, a=None, ax=None):
+def draw_possible_ellipse_given_foci(focus1:np.ndarray, focus2:np.ndarray, a=None, ax=None):
     """
     Simple custom function to draw an ellipse with 2 given focii
+
+    Parameters
+    ----------
+    focus1 : np.ndarray
+        First focus of the ellipse
+    focus2 : np.ndarray
+        Second focus of the ellipse
+    a : float, optional
+        Default length for semi-major axis of the ellipse, by default 0.75 * distance between focii
+    ax : matplotlib.axes.Axes, optional
+        Axes to plot the ellipse, by default None
     """
 
     # Calculate the distance from center to each focus
