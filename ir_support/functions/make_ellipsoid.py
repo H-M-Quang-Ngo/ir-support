@@ -3,16 +3,16 @@ import matplotlib.pyplot as plt
 from typing import Union, Optional, Tuple, List
 
 def make_ellipsoid(
-    ellipsoid_info: Union[np.ndarray, List[float]], 
-    center: Union[np.ndarray, List[float]], 
-    color: Optional[str] = None, 
-    u: Optional[np.ndarray] = None, 
-    v: Optional[np.ndarray] = None, 
-    ax: Optional[plt.Axes] = None, 
+    ellipsoid_info: Union[np.ndarray, List[float]],
+    center: Union[np.ndarray, List[float]],
+    color: Optional[str] = None,
+    u: Optional[np.ndarray] = None,
+    v: Optional[np.ndarray] = None,
+    ax: Optional[plt.Axes] = None,
     is_plot: bool = True) -> Union[Tuple[plt.Axes, Tuple[np.ndarray, np.ndarray, np.ndarray]], Tuple[np.ndarray, np.ndarray, np.ndarray]]:
         """
         Simple custom function to create an ellipsoid.
-        
+
         :param ellipsoid_info: 1x3 array-like (ellipsoid radii) or 3x3 array (inversion of the ellipsoid matrix)
         :param center: center of the ellipsoid
         :param color: color for ellipsoid

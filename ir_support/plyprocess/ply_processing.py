@@ -12,35 +12,35 @@ from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Path3DCollection
 from trimesh import Trimesh
 
 # ---------------------------------------------------------------------------------------#
-def place_object(ply_file_path: Optional[str] = None, 
-                 vertices: Optional[np.ndarray] = None, 
-                 vertices_color: Optional[np.ndarray] = None, 
-                 faces: Optional[np.ndarray] = None, 
-                 faces_color: Optional[np.ndarray] = None, 
-                 output: str = 'scatter', 
-                 ax: Optional[plt.Axes] = None, 
+def place_object(ply_file_path: Optional[str] = None,
+                 vertices: Optional[np.ndarray] = None,
+                 vertices_color: Optional[np.ndarray] = None,
+                 faces: Optional[np.ndarray] = None,
+                 faces_color: Optional[np.ndarray] = None,
+                 output: str = 'scatter',
+                 ax: Optional[plt.Axes] = None,
                  simplified: int = 1,
                  **kwargs: Any) -> Union[Path3DCollection, Poly3DCollection]:
     """
     Read a ply file and plot that object into current active axes. If there is no current active axes, a new one is created
-    
+
     Parameters
     ----------
     :param ply_file_path: directory to the ply file. No need to input vertices and faces information if this param is supplied
     :type: string
     :param vertices: object's input vertices
-    :type vertices: NDArray of N-vertices of the object (Nx3) 
+    :type vertices: NDArray of N-vertices of the object (Nx3)
     :param vertices_color: object's input vertices color
-    :type vertices_color: NDArray of N-vertex color of the object (Nx3) 
+    :type vertices_color: NDArray of N-vertex color of the object (Nx3)
     :param faces: face data in form of vertex indices array
-    :type faces: NDAarray of face data - M faces x vertex index for each face 
+    :type faces: NDAarray of face data - M faces x vertex index for each face
     :param faces_color: color data for each fay
     :type faces: NDAarray of face data color - N faces x color each face
     :param output: Output object type. 'scatter' for pointcloud or 'surface' for mesh object. Default to 'scatter'
     :param ax: current axes to plot on, default to None will create new 3D axes or plot on current active axes
     :param simplified: factor for simplifying the mesh object (i.e simplified = 10 will reduces the number of faces 10 times)
                        Applied for 'surface' output only. Cannot ensure coloring
-    
+
     :kwargs: all attributes of the return object can go with set_ (i.e input 'sizes = 1', then it will do set_sizes(1))
 
     Return
@@ -68,7 +68,7 @@ def place_object(ply_file_path: Optional[str] = None,
         vertices_color = default_color_array(np.size(vertices,0))
     if faces_color is None and faces is not None:
         faces_color = default_color_array(np.size(faces,0))
-    
+
     # Check for available current axes
     if ax is None:
         existing_axes = plt.gcf().axes
@@ -80,18 +80,18 @@ def place_object(ply_file_path: Optional[str] = None,
     # Warning if plotting on a 2D axes
     if (ax.__class__.__name__ == 'Axes'):
         warnings.warn("Plotting on 2D axes")
-    
+
     if output == 'scatter':
         # Plot the vertices as a 3D scatter plot into current active axes
         scatter_object = ax.scatter(vertices[:, 0], vertices[:, 1], vertices[:, 2], c = vertices_color)
-        plot_object = scatter_object    
+        plot_object = scatter_object
     elif output == 'surface':
         # Plot the vertices as a 3D surface plot into current active axes
         try:
             mesh_object = Poly3DCollection(vertices[faces], linewidths=0.1, facecolors = faces_color, edgecolors='k')
         except ValueError:
             mesh_object = Poly3DCollection([vertices[indices] for indices in faces], linewidths=0.1, facecolors = faces_color, edgecolors='k')
-        
+
         ax.add_collection(mesh_object)
         plot_object = mesh_object
     else:
@@ -101,14 +101,14 @@ def place_object(ply_file_path: Optional[str] = None,
         try:
             getattr(plot_object, f'set_{attr}')(kwargs[attr])
         except:
-            print(f"Cannot set {attr}") 
+            print(f"Cannot set {attr}")
     return plot_object
 
 # ---------------------------------------------------------------------------------------#
 def get_ply_data(ply_file_path:str, simplified:float = 1):
     """
     Read a ply file and get the vertices, faces and vertices color, faces color data
-    
+
     Parameters
     ----------
     :param ply_file_path: directory to the ply file
@@ -142,7 +142,7 @@ def get_ply_data(ply_file_path:str, simplified:float = 1):
     if is_vertex_color: # If the color exists, try change them to 0-1 RGB range
         if np.any(np.abs(vertices_color) > 1):
             vertices_color = vertices_color/255
-    else: # Else set a default color 
+    else: # Else set a default color
         vertices_color = default_color_array(np.size(vertices,0))
 
     # Get the face data in form of vertex-indices list
@@ -150,11 +150,11 @@ def get_ply_data(ply_file_path:str, simplified:float = 1):
     faces = []
     for indices in plydata['face']['vertex_indices']:
         faces.append(np.array(list(indices), dtype= int))
-    
+
     # Get the face color if exist
     faces_color = []
     is_faces_color = 'red' in plydata['face'] and 'green' in plydata['face'] and 'blue' in plydata['face']
-    
+
     if is_faces_color:
         faces_color = np.column_stack((plydata['face']['red'], plydata['face']['green'], plydata['face']['blue']))
         # Correct the face color:
@@ -164,15 +164,15 @@ def get_ply_data(ply_file_path:str, simplified:float = 1):
     #     faces_color = vertices_color
     else:
         faces_color = default_color_array(len(faces))
-    
+
     # Simplified output if required
     if simplified > 1:
-        simplified_mesh = Trimesh(vertices = vertices, 
+        simplified_mesh = Trimesh(vertices = vertices,
                                   faces= faces).simplify_quadric_decimation(int(len(faces)/simplified))
         vertices = simplified_mesh.vertices
         faces = simplified_mesh.faces
 
-    return {'vertices': vertices, 'vertices_color': vertices_color, 
+    return {'vertices': vertices, 'vertices_color': vertices_color,
             'faces': faces, 'faces_color': faces_color}
 
 # ---------------------------------------------------------------------------------------#
@@ -183,11 +183,11 @@ def get_vertices(scatter_object: Path3DCollection) -> np.ndarray:
     Parameter
     ----------
     :param scatter_object: input object
-    :type scatter_object: `mpl_toolkits.mplot3d.art3d.Path3DCollection` 
+    :type scatter_object: `mpl_toolkits.mplot3d.art3d.Path3DCollection`
 
     Return
     ----------
-    NDArray of N-vertices of the object (Nx3) 
+    NDArray of N-vertices of the object (Nx3)
     """
     x_array = scatter_object._offsets3d[0]
     y_array = scatter_object._offsets3d[1]
@@ -195,12 +195,12 @@ def get_vertices(scatter_object: Path3DCollection) -> np.ndarray:
     return np.transpose(np.vstack((x_array, y_array, z_array)))
 
 # ---------------------------------------------------------------------------------------#
-def set_vertices(input_object: Union[Path3DCollection, Poly3DCollection], 
-                 vertices: np.ndarray, 
+def set_vertices(input_object: Union[Path3DCollection, Poly3DCollection],
+                 vertices: np.ndarray,
                  faces: Optional[np.ndarray] = None) -> None:
     """
     Update the pointcloud of the object by an new array of vertices (3xN or Nx3)
-    
+
     Parameter
     ----------
     :param input_object: input object
@@ -208,8 +208,8 @@ def set_vertices(input_object: Union[Path3DCollection, Poly3DCollection],
     :param vertices: object's desired vertices
     :type vertices: NDArray of N-vertices of the object
     :param faces: face data in form of vertex indices array
-    :type faces NDAarray of face data - M faces x vertex index for each face 
-    """ 
+    :type faces NDAarray of face data - M faces x vertex index for each face
+    """
     if isinstance(input_object, Path3DCollection):
         input_object._offsets3d = (vertices[:,0], vertices[:,1], vertices[:,2])
     elif isinstance(input_object, Poly3DCollection):
@@ -223,7 +223,7 @@ def set_vertices(input_object: Union[Path3DCollection, Poly3DCollection],
     else:
         raise ValueError('Unknown type of object!')
 
-def scale_object(input_object: Path3DCollection, 
+def scale_object(input_object: Path3DCollection,
                  scale: Union[List[float], float]) -> None:
     """
     Scale an object by a scale, which is a list [x,y,z] or a scalar
@@ -231,9 +231,9 @@ def scale_object(input_object: Path3DCollection,
     Parameter
     ----------
     :param input_object: input object
-    :type scatter_object: `mpl_toolkits.mplot3d.art3d.Path3DCollection` 
+    :type scatter_object: `mpl_toolkits.mplot3d.art3d.Path3DCollection`
     :param scale: desired scale for input object
-    :type scale: list of 3 or a scalar 
+    :type scale: list of 3 or a scalar
     """
     if isinstance(input_object, Path3DCollection):
         xyz_original = input_object._offsets3d
@@ -248,7 +248,7 @@ def scale_object(input_object: Path3DCollection,
             y_scaled = xyz_original[1] * scale
             z_scaled = xyz_original[2] * scale
         else:
-            raise ValueError("Invalid scale argument")       
+            raise ValueError("Invalid scale argument")
         input_object._offsets3d = (x_scaled, y_scaled, z_scaled)
 
     elif isinstance(input_object, Poly3DCollection):
@@ -257,7 +257,7 @@ def scale_object(input_object: Path3DCollection,
     else:
         raise ValueError('Invalid input object type')
 
-def transform_vertices(vertices: np.ndarray, 
+def transform_vertices(vertices: np.ndarray,
                        transform: np.ndarray) -> np.ndarray:
     """
     Update an array of vertices (Nx3) by a transform
@@ -265,7 +265,7 @@ def transform_vertices(vertices: np.ndarray,
     Parameter
     ----------
     :param vertices: object's input vertices
-    :type vertices: NDArray of N-vertices of the object (Nx3) 
+    :type vertices: NDArray of N-vertices of the object (Nx3)
     :param transform: transform to update the object'vertices
     :type transform: SE3 Array
 
@@ -273,14 +273,14 @@ def transform_vertices(vertices: np.ndarray,
     ----------
     NDArray of N-vertices of the object after transform (Nx3)
 
-    """ 
+    """
     num_vertices = np.size(vertices, 0)
-    
+
     ## To do a matrix multiplication, we have to change the vertices array into homogeneous form and transpose it
     # Switch to homogeneous form
     one_col = np.ones([num_vertices, 1])
     new_vertices = np.hstack((vertices, one_col))
-    new_vertices = np.transpose(new_vertices) 
+    new_vertices = np.transpose(new_vertices)
 
     # Do matrix multiplication
     new_vertices = transform @ np.array(new_vertices)
@@ -288,28 +288,28 @@ def transform_vertices(vertices: np.ndarray,
 
     return new_vertices[:,:-1]
 
-def move_object(scatter_object: Path3DCollection, 
+def move_object(scatter_object: Path3DCollection,
                 transform: np.ndarray) -> None:
     """
-    Move the input object by a transform 
+    Move the input object by a transform
 
     Parameter
     ----------
-    :param scatter_object: input object 
+    :param scatter_object: input object
     :type scatter_object: `mpl_toolkits.mplot3d.art3d.Path3DCollection`
     :param transform: transform in global frame to move the object
     :type transform: SE3 Array
 
     """
-    # Get vertices of the object 
+    # Get vertices of the object
     vertices = get_vertices(scatter_object)
     num_vertices = np.size(vertices, 0)
-    
+
     ## To do a matrix multiplication, we have to change the vertices array into homogeneous form and transpose it
     # Switch to homogeneous form
     one_col = np.ones([num_vertices, 1])
     vertices = np.hstack((vertices, one_col))
-    vertices = np.transpose(vertices) 
+    vertices = np.transpose(vertices)
 
     # Do matrix multiplication
     vertices = transform @ np.array(vertices)
@@ -319,7 +319,7 @@ def move_object(scatter_object: Path3DCollection,
 
 def default_color_array(size: int) -> np.ndarray:
     """
-    Create an array of size x 3 RGB color [0-1] 
+    Create an array of size x 3 RGB color [0-1]
     """
     values = np.linspace(0, 1, size)
     # Create the color array with RGB values

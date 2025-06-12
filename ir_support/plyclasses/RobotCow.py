@@ -17,7 +17,7 @@ class RobotCow:
     A random herd of cows
     '''
     def __init__(self, num_cows:int = 2, # Default input cow number is 2
-                 plot_type:Optional[str]= 'surface'): 
+                 plot_type:Optional[str]= 'surface'):
         """
         Initialize the cow herd simulation
 
@@ -36,10 +36,10 @@ class RobotCow:
         self._traj_list = [] # List of trajectory for each cow
         self._num_traj_steps = 10 # Default number of step in a trajectory
         self._single_call = 0 # Number of times the 'plot_single_random_step' has been called, reset when finish current trajectory
-        
+
         # plt.close('all')
         spbase.plotvol3(dim = self._ranges, equal= True, grid= True)
-        
+
         self._plot_type = plot_type
         self.num_cows = num_cows
         self.cow_list = []
@@ -69,8 +69,8 @@ class RobotCow:
         for _ in range(self.num_cows):
             cow_base = self._generate_random_transform()
             cow_vertices = plyp.transform_vertices(self._cow_plotdata['vertices'], cow_base)
-            cow = {'base': cow_base, 
-                   'vertices': cow_vertices, 
+            cow = {'base': cow_base,
+                   'vertices': cow_vertices,
                    'color':self._cow_plotdata['color']}
             self.cow_list.append(cow)
 
@@ -90,14 +90,14 @@ class RobotCow:
         Plot a single random step for all cows
         """
         for i in range(self.num_cows):
-            self.cow_list[i]['base'] = self._traj_list[i][self._single_call] 
+            self.cow_list[i]['base'] = self._traj_list[i][self._single_call]
             self.animate(i)
-            
+
         self._single_call += 1
         if self._single_call == self._num_traj_steps:
             self._generate_cows_trajectory()
             self._single_call = 0
-    
+
     def animate(self, cow_index:int):
         """
         Animate the cow at index `cow_index`
@@ -119,22 +119,22 @@ class RobotCow:
         for _ in range(num_steps):
             self.plot_single_random_step()
             plt.pause(delay)
-    
+
     def _generate_cows_trajectory(self):
         def traj_generator(T1, T2, num_steps):
             trajectory = []
             step = 1/num_steps
-            for i in np.arange(0, 1 + step, step): 
+            for i in np.arange(0, 1 + step, step):
                 trajectory.append(spbase.trinterp(T1, T2, i))
             return trajectory
-        
+
         self._traj_list = [] # Reset the list of trajectories
         for cow in self.cow_list:
             delta = np.random.uniform(-np.pi/12, np.pi/12)
             goal_tr = cow['base'] @ spbase.trotz(delta) @ spbase.transl(1.5,0,0)
             only_rotate = False
             if not (self._ranges[0] <= goal_tr[0,3] <= self._ranges[1] and self._ranges[2] <= goal_tr[1,3] <= self._ranges[3]):
-                goal_tr = cow['base'] @ spbase.transl(-0.2,0,0) @ spbase.trotz(np.pi) 
+                goal_tr = cow['base'] @ spbase.transl(-0.2,0,0) @ spbase.trotz(np.pi)
                 only_rotate = True
 
             if only_rotate:
@@ -142,9 +142,9 @@ class RobotCow:
                 self._traj_list.append(rot_traj)
             else:
                 rot_traj = traj_generator(cow['base'], cow['base'] @ spbase.trotz(delta), 3)
-                trans_traj = traj_generator(rot_traj[-1], goal_tr, self._num_traj_steps - 3) 
+                trans_traj = traj_generator(rot_traj[-1], goal_tr, self._num_traj_steps - 3)
                 self._traj_list.append(rot_traj + trans_traj)
-            
+
     # ---------------------------------------------------------------------------------------#
     def _generate_random_transform(self):
         '''
@@ -153,15 +153,15 @@ class RobotCow:
         :rtype: SE3 object NDArray object
         '''
         # Generate random point coordinates
-        x = np.random.uniform(self._ranges[0], self._ranges[1])  
-        y = np.random.uniform(self._ranges[2], self._ranges[3])  
-        yaw = np.random.uniform(-np.pi, np.pi) 
+        x = np.random.uniform(self._ranges[0], self._ranges[1])
+        y = np.random.uniform(self._ranges[2], self._ranges[3])
+        yaw = np.random.uniform(-np.pi, np.pi)
         transform = SE3(x,y,0) * SE3.Rz(yaw)
         return transform.A
 
 # ---------------------------------------------------------------------------------------#
-def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0, 0], 
-                orientation: Optional[float] = 0, 
+def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0, 0],
+                orientation: Optional[float] = 0,
                 plot_type: Optional[str] = 'surface'):
     '''
     Place a fence read from 'fenceFinal.ply' into current environment
@@ -189,7 +189,7 @@ def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0
     vertices = place_fence.vertices.copy()
     vertices = plyp.transform_vertices(vertices, spbase.transl(position) @ spbase.trotz(orientation * np.pi/180))
     if plot_type == 'scatter':
-        fence = plyp.place_object(vertices= vertices, vertices_color = place_fence.vertices_color, 
+        fence = plyp.place_object(vertices= vertices, vertices_color = place_fence.vertices_color,
                             sizes = place_fence.sizes, linestyles = place_fence.linestyles, linewidths = place_fence.linewidths)
     elif plot_type == 'surface':
         fence = plyp.place_object(vertices= vertices, faces= place_fence.faces, faces_color= place_fence.faces_color, output = 'surface')

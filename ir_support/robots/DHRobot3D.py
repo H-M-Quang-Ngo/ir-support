@@ -26,18 +26,18 @@ class DHRobot3D(rtb.DHRobot, ABC):
     - `links`: list of DH links `roboticstoolbox.DHLink` to construct the robot
     - `link3D_names`: dictionary for names of the 3D file for each robot link in the directory, e.g. {link0: 'base', link1: 'shoulder'...}. File extension can be ply, dae, stl
     - `link3D_dir`: absolute path to the 3D files
-    - `name`: name of the robot 
+    - `name`: name of the robot
     - `qtest`: an input joint config as a list to calibrate the 3D model. Number of elements in `qtest` is the number of robot joints
     - `qtest_transforms`: transforms of the 3D models to match the config by `qtest`.
                           Number of elements in `qtest_transforms` = number of elements in `qtest` plus 1.
                           The first element is the transform of the global coordinate to the robot.
     """
 
-    def __init__(self, links:List[rtb.DHLink], 
-                 link3D_names:Dict[str, Union[str, Tuple[float, float, float, float]]], 
-                 link3d_dir: str, 
-                 name: Optional[str] = None, 
-                 qtest: Optional[List[float]] = None, 
+    def __init__(self, links:List[rtb.DHLink],
+                 link3D_names:Dict[str, Union[str, Tuple[float, float, float, float]]],
+                 link3d_dir: str,
+                 name: Optional[str] = None,
+                 qtest: Optional[List[float]] = None,
                  qtest_transforms: Optional[List[np.ndarray]] = None):
         """
         Initialize the 3D robot with the given DH links and 3D models
@@ -61,17 +61,17 @@ class DHRobot3D(rtb.DHRobot, ABC):
 
         super().__init__(links, name = name)
         self.link3D_names = link3D_names
-        
+
         if qtest is None: # default qtest
-            qtest = [0 for _ in range(self.n)] 
+            qtest = [0 for _ in range(self.n)]
         if qtest_transforms is None: # default transforms
             qtest_transforms = [np.eye(4) for _ in range(self.n + 1)]
-        
+
         self._link3D_dir = link3d_dir
         self._qtest = qtest
         self._qtest_transforms = qtest_transforms
         self._apply_3dmodel()
-    
+
     # -----------------------------------------------------------------------------------#
     def _apply_3dmodel(self):
         """
@@ -85,7 +85,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
             for ext in ['.stl', '.dae', '.ply']:
                 if os.path.exists(os.path.join(self._link3D_dir, self.link3D_names[f'link{i}'] + ext)):
                     file_name = os.path.join(self._link3D_dir, self.link3D_names[f'link{i}'] + ext)
-                    break                   
+                    break
             if file_name is not None:
                 if f'color{i}' in self.link3D_names:
                     self.links_3d.append(geometry.Mesh(file_name, color = self.link3D_names[f'color{i}']))
@@ -97,9 +97,9 @@ class DHRobot3D(rtb.DHRobot, ABC):
         link_transforms = self._get_transforms(self._qtest)
 
         # Get relation matrix between the pose of the DH Link and the pose of the corresponding 3d object
-        self._relation_matrices = [np.linalg.inv(link_transforms[i]) @ self._qtest_transforms[i] 
-                                   for i in range(len(link_transforms))] 
-    
+        self._relation_matrices = [np.linalg.inv(link_transforms[i]) @ self._qtest_transforms[i]
+                                   for i in range(len(link_transforms))]
+
     # -----------------------------------------------------------------------------------#
     def _update_3dmodel(self)->None:
         """
@@ -108,7 +108,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
         link_transforms = self._get_transforms(self.q)
         for i, link in enumerate(self.links_3d):
             link.T = link_transforms[i] @ self._relation_matrices[i]
-    
+
     # -----------------------------------------------------------------------------------#
     def _get_transforms(self,q)->List[np.ndarray]:
         """
@@ -119,7 +119,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
         for i in range(self.n):
             transforms.append(transforms[i] @ L[i].A(q[i]).A)
         return transforms
-    
+
     # -----------------------------------------------------------------------------------#
     def add_to_env(self, env:swift.Swift)->None:
         """
@@ -130,7 +130,7 @@ class DHRobot3D(rtb.DHRobot, ABC):
         self._update_3dmodel()
         for link in self.links_3d:
             env.add(link)
-        
+
     # -----------------------------------------------------------------------------------#
     def __setattr__(self, name, value):
         """

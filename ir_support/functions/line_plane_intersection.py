@@ -1,9 +1,9 @@
 import numpy as np
 from typing import Union, List, Tuple
 
-def line_plane_intersection(plane_normal:Union[np.ndarray, List[float]], 
+def line_plane_intersection(plane_normal:Union[np.ndarray, List[float]],
                             point_on_plane:Union[np.ndarray, List[float]],
-                            point1_on_line:Union[np.ndarray, List[float]], 
+                            point1_on_line:Union[np.ndarray, List[float]],
                             point2_on_line:Union[np.ndarray, List[float]],)->Tuple[np.ndarray, int]:
     """
     Given a plane (normal and point) and two points that make up another line, get the intersection
@@ -30,7 +30,7 @@ def line_plane_intersection(plane_normal:Union[np.ndarray, List[float]],
     D = np.dot(np.array(plane_normal), u)
     N = -np.dot(np.array(plane_normal), w)
     check = 0
-    
+
     if np.abs(D) < pow(10,-7):                          # The segment is parallel to plane
         if N == 0:                                      # The segment lies in plane
             check = 2
@@ -46,5 +46,5 @@ def line_plane_intersection(plane_normal:Union[np.ndarray, List[float]],
         check = 3                                       # The intersection point lies outside the segment, so there is no intersection
     else:
         check = 1
-    
+
     return intersection_point, check

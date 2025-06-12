@@ -15,11 +15,11 @@ import os
 from math import pi
 
 # -----------------------------------------------------------------------------------#
-class UR3(DHRobot3D):    
-    def __init__(self):     
-        """ 
+class UR3(DHRobot3D):
+    def __init__(self):
+        """
             UR3 Robot by DHRobot3D class
-            
+
             Example usage:
             >>> from ir-support import UR3
             >>> import swift
@@ -35,33 +35,33 @@ class UR3(DHRobot3D):
             >>> for q in qtraj:r
             >>>    r.q = q
             >>>    env.step(0.02)
-        """     
+        """
         # DH links
-        links = self._create_DH()     
-        
+        links = self._create_DH()
+
         # Names of the robot link files in the directory
-        link3D_names = dict(link0 = 'base_ur3', 
-                            link1 = 'shoulder_ur3', 
-                            link2 = 'upperarm_ur3', 
-                            link3 = 'forearm_ur3', 
-                            link4 = 'wrist1_ur3', 
-                            link5 = 'wrist2_ur3', 
+        link3D_names = dict(link0 = 'base_ur3',
+                            link1 = 'shoulder_ur3',
+                            link2 = 'upperarm_ur3',
+                            link3 = 'forearm_ur3',
+                            link4 = 'wrist1_ur3',
+                            link5 = 'wrist2_ur3',
                             link6 = 'wrist3_ur3')
-        
+
         # A joint config and the 3D object transforms to match that config
         qtest = [0,-pi/2,0,0,0,0]
-        qtest_transforms = [spb.transl(0,0,0),                                                     
-                            spb.transl(0,0,0.15239) @ spb.trotz(pi), 
+        qtest_transforms = [spb.transl(0,0,0),
+                            spb.transl(0,0,0.15239) @ spb.trotz(pi),
                             spb.transl(0,-0.12,0.1524) @ spb.trotz(pi),
-                            spb.transl(0,-0.027115,0.39583) @ spb.trotz(pi), 
+                            spb.transl(0,-0.027115,0.39583) @ spb.trotz(pi),
                             spb.transl(0,-0.027316,0.60903) @ spb.rpy2tr(0,-pi/2,pi, order = 'xyz'),
                             spb.transl(0.000389,-0.11253,0.60902) @ spb.rpy2tr(0,-pi/2,pi, order= 'xyz'),
                             spb.transl(-0.083765,-0.11333,0.61096) @ spb.trotz(pi)]
-        
+
         current_path = os.path.abspath(os.path.dirname(__file__))
         super().__init__(links, link3D_names, name = 'UR3', link3d_dir = current_path, qtest = qtest, qtest_transforms = qtest_transforms)
         self.q = qtest
-        
+
     # -----------------------------------------------------------------------------------#
     def _create_DH(self):
         """
@@ -76,7 +76,7 @@ class UR3(DHRobot3D):
             link = rtb.RevoluteDH(d=d[i], a=a[i], alpha=alpha[i], qlim= qlim[i])
             links.append(link)
         return links
-                    
+
     # -----------------------------------------------------------------------------------#
     def test(self):
         """
@@ -84,10 +84,10 @@ class UR3(DHRobot3D):
         """
         env = swift.Swift()
         env.launch(realtime= True)
-        self.q = self._qtest        
+        self.q = self._qtest
         self.base = SE3(0.5,0.5,0)
         self.add_to_env(env)
-             
+
         q_goal = [self.q[i]-pi/3 for i in range(self.n)]
         qtraj = rtb.jtraj(self.q, q_goal, 50).q
         # fig = self.plot(self.q)
@@ -99,8 +99,7 @@ class UR3(DHRobot3D):
         # env.hold()
 
 # ---------------------------------------------------------------------------------------#
-if __name__ == "__main__":  
+if __name__ == "__main__":
     r = UR3()
     r.test()
 
-    

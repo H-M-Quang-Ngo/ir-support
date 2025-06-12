@@ -14,10 +14,10 @@ class EllipsoidRobot:
     """
     Generate and animate a DH skeleton robot with ellipsoid for each link
     """
-    def __init__(self, robot: rtb.DHRobot, 
-                 q: Optional[Union[np.ndarray, list]] = None, 
-                 fig: Optional[PyPlot.PyPlot] = None, 
-                 default_height: float = 0.1, 
+    def __init__(self, robot: rtb.DHRobot,
+                 q: Optional[Union[np.ndarray, list]] = None,
+                 fig: Optional[PyPlot.PyPlot] = None,
+                 default_height: float = 0.1,
                  default_width: float = 0.1):
         """
         Generate and animate a DH skeleton robot with ellipsoid for each link
@@ -35,9 +35,9 @@ class EllipsoidRobot:
         default_width: float, optional
             Default width of the ellipsoid. Default is 0.1
         """
-        
+
         if isinstance(robot, rtb.DHRobot):
-            self.robot = robot 
+            self.robot = robot
         else:
             raise TypeError('Invalid input robot type. Requires DHRobot!')
         if q == None:
@@ -49,7 +49,7 @@ class EllipsoidRobot:
             self.fig = robot.plot(self.q)
         else:
             self.fig = fig
-        
+
         self.default_height = default_height
         self.default_width = default_width
         self.ellipsoid_matrices = []
@@ -71,7 +71,7 @@ class EllipsoidRobot:
             ax1 = transforms[i+1][:3,3]- transforms[i][:3,3]
             ax2 = np.array([-ax1[1], ax1[0], 0])
             ax3 = np.cross(ax1, ax2)
-            ellipsoids_info.append({'ax1':ax1, 'ax2':ax2, 'ax3':ax3, 
+            ellipsoids_info.append({'ax1':ax1, 'ax2':ax2, 'ax3':ax3,
                                     'center': (transforms[i+1][:3,3]+ transforms[i][:3,3])/2})
 
         self.ellipsoid_matrices = []
@@ -89,13 +89,13 @@ class EllipsoidRobot:
                 ax3 = ax3 / linalg.norm(ax3)
 
             axes_matrix = np.column_stack((ax1, ax2, ax3))
-            diagonal_matrix = np.diag(np.square([np.linalg.norm(ellipsoid['ax1']/2), 
-                                        self.default_height, 
-                                        self.default_width]))    
+            diagonal_matrix = np.diag(np.square([np.linalg.norm(ellipsoid['ax1']/2),
+                                        self.default_height,
+                                        self.default_width]))
             ellipsoid_matrix = axes_matrix @ diagonal_matrix @ axes_matrix.T
-            self.ellipsoid_matrices.append({'matrix': ellipsoid_matrix, 
+            self.ellipsoid_matrices.append({'matrix': ellipsoid_matrix,
                                             'center': ellipsoid['center']})
-    
+
     # ---------------------------------------------------------------------------------------#
     def plot_ellipsoids(self):
         """
@@ -103,7 +103,7 @@ class EllipsoidRobot:
         """
         self.remove_ellipsoid()
         for i, ellipsoid in enumerate(self.ellipsoid_matrices):
-            ellipsoid_h, _ = make_ellipsoid(ellipsoid['matrix'], ellipsoid['center'], 
+            ellipsoid_h, _ = make_ellipsoid(ellipsoid['matrix'], ellipsoid['center'],
                     ax = self.fig.ax, color = self.colors[i])
             self.ellipsoids_h.append(ellipsoid_h)
 
@@ -120,7 +120,7 @@ class EllipsoidRobot:
         for i in range(self.robot.n):
             transforms.append(transforms[i] @ L[i].A(q[i]).A)
         return transforms
-    
+
     # ---------------------------------------------------------------------------------------#
     def teach(self):
         """

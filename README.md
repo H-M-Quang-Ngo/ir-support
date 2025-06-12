@@ -6,11 +6,14 @@ It is developed to provide equivalent support for the Python option of the subje
 # Installation
 Requirement: Robotics Toolbox for Python
 
-$ **pip install rvc3python**
-
+```
+pip install rvc3python
+```
 then
 
-$ **pip install ir-support**
+```
+pip install ir-support
+```
 
 Currently, it gets tested on Python 3.8 - 3.11
 

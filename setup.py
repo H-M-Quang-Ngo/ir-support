@@ -1,3 +1,4 @@
+# DEPRECATED: This setup.py is deprecated and should not be used. Use pyproject.toml or other modern packaging tools instead.
 from setuptools import setup, find_packages
 
 setup(

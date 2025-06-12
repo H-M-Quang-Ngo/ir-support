@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 from spatialmath.base import trinterp, tranimate
 from typing import Generator, Optional, Union, List, Tuple
 
-def tranimate_custom(T1: np.ndarray, T2: np.ndarray, 
-                     speed: int = 1, dim: Optional[Union[List[float], Tuple[float, ...]]] = None, 
+def tranimate_custom(T1: np.ndarray, T2: np.ndarray,
+                     speed: int = 1, dim: Optional[Union[List[float], Tuple[float, ...]]] = None,
                      hold: bool = False) -> None:
     """
     Supported function to animate motion from transform T1 to T2 (SE3)

@@ -18,7 +18,7 @@ class RectangularPrism:
         width : float
             The width of the rectangular prism.
         height : float
-            The height of the rectangular prism. 
+            The height of the rectangular prism.
         """
         self.width = width
         self.length = length
@@ -26,7 +26,7 @@ class RectangularPrism:
         self.center = center
         self.color = color
         self.options = []
-        
+
         self._vertices = self._calculate_vertices()
         self._faces = self._calculate_faces()
         self._normals = self._calculate_normals()
@@ -34,7 +34,7 @@ class RectangularPrism:
         self.obj.set_facecolor(color)
 
         self._plot_prism()
-    
+
     def _calculate_vertices(self):
         vertices = np.zeros((8, 3))
         vertices[1] = [self.width, 0, 0]
@@ -44,15 +44,15 @@ class RectangularPrism:
         vertices[5] = [self.width, 0, self.height]
         vertices[6] = [self.width, self.length, self.height]
         vertices[7] = [0, self.length, self.height]
-        
+
         # Shift vertices based on the center point
         vertices -= np.array([self.width/2, self.length/2, self.height/2])  # Subtract half of width, length, and height
-    
+
         # Translate the vertices to the specified center
         vertices += np.array(self.center)
-        
+
         return vertices
-    
+
     def _calculate_faces(self):
         faces = [
             [0, 1, 2, 3],  # z == 0
@@ -63,7 +63,7 @@ class RectangularPrism:
             [4, 5, 6, 7]   # z == height
         ]
         return faces
-    
+
     def _calculate_normals(self):
         normals = []
         for face in self._faces:
@@ -72,7 +72,7 @@ class RectangularPrism:
             normal = np.cross(v1, v2)
             normals.append(normal)
         return normals
-    
+
     def _plot_prism(self):
         existing_axes = plt.gcf().axes
         if len(existing_axes) == 0: # If no current axes, then create one
@@ -81,12 +81,12 @@ class RectangularPrism:
             ax = plt.gca()
             if not isinstance(ax, Axes3D):
                 ax = plt.gcf().add_subplot(projection='3d')
-        
+
         ax.add_collection(self.obj)
-    
+
     def get_data(self):
         return self._vertices, self._faces, self._normals
-    
+
 # ---------------------------------------------------------------------------------------#
 if __name__ == '__main__':
     plt.figure().add_subplot(projection= '3d')
