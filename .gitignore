@@ -1,7 +1,6 @@
 __pycache__/
 *.pyc
 .DS_Store
-.venv/
 dist/
 eggs/
 .eggs/
@@ -12,6 +11,8 @@ sdist/
 var/
 .installed.cfg
 *.egg
+*.egg-info/
+*.whl
 MANIFEST
 *.manifest
 *.spec
@@ -20,6 +21,8 @@ MANIFEST
 .python-version
 .vscode/
 env/
+.env/
+.env
 .venv/
 venv/
 ENV/
