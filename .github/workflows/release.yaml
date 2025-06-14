@@ -1,0 +1,63 @@
+---
+name: Release to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for release'
+        required: true
+        default: 'Manual release to PyPI'
+
+jobs:
+  check-permissions:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check if initiator is codeowner
+        id: check-codeowner
+        run: |
+          if grep -q "${{ github.actor }}" .github/CODEOWNERS; then
+            echo "::set-output name=is_codeowner::true"
+            echo "${{ github.actor }} is a codeowner, proceeding with release"
+          else
+            echo "::set-output name=is_codeowner::false"
+            echo "${{ github.actor }} is not a codeowner, aborting"
+            exit 1
+          fi
+
+  release:
+    needs: check-permissions
+    runs-on: ubuntu-22.04
+
+    environment: "PyPI release"
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install and Configure Poetry
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          poetry config virtualenvs.create false
+          poetry config pypi-token.pypi $POETRY_PYPI_TOKEN_PYPI
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-root
+
+      - name: Build package
+        run: |
+          poetry build
+
+      - name: Publish to PyPI
+        run: |
+          poetry publish --no-interaction --verbose
