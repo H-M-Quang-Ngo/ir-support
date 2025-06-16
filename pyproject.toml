@@ -6,7 +6,10 @@ build-backend = "poetry.core.masonry.api"
 name = "ir-support"
 version = "1.2.0"
 description = "Python package including some classes & functions supporting the subject 41013 Industrial Robotics at UTS, along with the Robotics Toolbox for Python"
-authors = ["Quang Ngo <quang.ngohominh@gmail.com>"]
+authors = [
+    "Quang Ngo <quang.ngohominh@gmail.com>",
+    "Gavin Paul <gavin.paul-1@uts.edu.au>"
+           ]
 packages = [{include = "ir_support"}]
 
 readme = "README.md"
@@ -31,6 +34,7 @@ open3d = ">=0.18.0"
 spatialmath-python = "1.1.8"
 matplotlib = "3.7.2"
 pygame = "2.6.1"
+line_profiler = "4.2.0"
 
 [tool.poetry.urls]
 issues = "https://github.com/H-M-Quang-Ngo/ir-support"
