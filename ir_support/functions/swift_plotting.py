@@ -5,7 +5,6 @@ from roboticstoolbox import Robot
 import time
 import keyboard
 
-
 def add_frame_cylinders(env, length=0.1, radius=0.005):
     """
     Adds coordinate frame cylinders to the Swift environment.
@@ -81,6 +80,8 @@ def keyboard_joint_control_loop(robot, env, update_fn=None, step=0.05):
     print("  space to reset all joints to zero\n")
     print("  q to quit\n")
 
+    print_updated_joint_state = False
+
     while True:
         if keyboard.is_pressed("right"):
             joint_index = (joint_index + 1) % robot.n
@@ -94,13 +95,16 @@ def keyboard_joint_control_loop(robot, env, update_fn=None, step=0.05):
 
         elif keyboard.is_pressed("up"):
             robot.q[joint_index] += step
+            print_updated_joint_state = True
 
         elif keyboard.is_pressed("down"):
             robot.q[joint_index] -= step
+            print_updated_joint_state = True
 
         elif keyboard.is_pressed("space"):
             robot.q = [0.0] * robot.n
             print("Resetting all joints to zero.")
+            print_updated_joint_state = True
 
         elif keyboard.is_pressed("q"):
             print("Exiting.")
@@ -110,5 +114,8 @@ def keyboard_joint_control_loop(robot, env, update_fn=None, step=0.05):
         if update_fn:
             update_fn(robot.q, T)
 
-        print(f"q[{joint_index}] = {robot.q[joint_index]:.3f}")
+        if print_updated_joint_state:
+            print_updated_joint_state = False
+            print("Updated joint state:", "  ".join([f"q[{i}]={robot.q[i]:.3f}" for i in range(robot.n)]))
+
         env.step(0.02)

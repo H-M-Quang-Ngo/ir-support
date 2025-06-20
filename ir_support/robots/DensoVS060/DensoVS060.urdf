@@ -49,14 +49,29 @@
     </visual>
   </link>
 
-  <!-- Joint 2 -->
+<link name="link1b" />
+<joint name="link1_to_link1b" type="fixed">
+  <parent link="link1"/>
+  <child link="link1b"/>
+  <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
+</joint>
+
+<joint name="joint2" type="revolute">
+  <parent link="link1b"/>
+  <child link="link2"/>
+  <origin xyz="0 0 0" rpy="0 0 -3.1416"/>
+  <axis xyz="0 0 1"/>
+  <limit lower="-2.0944" upper="2.0944" effort="10" velocity="1"/>
+</joint>
+
+  <!-- Joint 2
   <joint name="joint2" type="revolute">
     <parent link="link1"/>
     <child link="link2"/>
-    <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+    <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
     <axis xyz="0 0 1"/>
     <limit lower="-2.0944" upper="2.0944" effort="10" velocity="1"/>
-  </joint>
+  </joint> -->
 
   <!-- Link 3 -->
   <link name="link3">
