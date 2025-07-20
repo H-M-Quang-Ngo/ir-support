@@ -162,7 +162,8 @@ class RobotCow:
 # ---------------------------------------------------------------------------------------#
 def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0, 0],
                 orientation: Optional[float] = 0,
-                plot_type: Optional[str] = 'surface'):
+                plot_type: Optional[str] = 'surface',
+                scale: Union[List[float], Tuple[float, float, float]] = [1, 1, 1]):
     '''
     Place a fence read from 'fenceFinal.ply' into current environment
 
@@ -170,8 +171,11 @@ def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0
     :type position: list or tuple of 3
     :param orientation: yaw angle in degree. Default is 0
     :type orientation: float
-    :return: an object into current drawing environment
     :param plot_type: 'scatter' or 'surface'. Default is 'surface'
+    :type plot_type: str
+    :param scale: scale of the fence in x, y, z direction. Default is [1,1,1]
+    :type scale: list or tuple of 3    
+    :return: an object into current drawing environment
     :rtype: 3Dplot object
     '''
     if not hasattr(place_fence,'vertices') and not hasattr(place_fence, 'vertices_color'):
@@ -187,7 +191,12 @@ def place_fence(position: Union[List[float], Tuple[float, float, float]] = [0, 0
         place_fence.linestyles = ['--','--',':']
 
     vertices = place_fence.vertices.copy()
-    vertices = plyp.transform_vertices(vertices, spbase.transl(position) @ spbase.trotz(orientation * np.pi/180))
+    # vertices = plyp.transform_vertices(vertices, spbase.transl(position) @ spbase.trotz(orientation * np.pi/180))
+    scale_matrix = np.diag([*scale, 1])
+    transform = spbase.transl(position) @ spbase.trotz(orientation * np.pi/180)    
+    vertices[:, :3] = vertices[:, :3] @ scale_matrix[:3, :3].T
+    vertices = plyp.transform_vertices(vertices, transform)
+
     if plot_type == 'scatter':
         fence = plyp.place_object(vertices= vertices, vertices_color = place_fence.vertices_color,
                             sizes = place_fence.sizes, linestyles = place_fence.linestyles, linewidths = place_fence.linewidths)
