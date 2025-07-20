@@ -18,4 +18,5 @@ pip install ir-support
 Currently, it gets tested on Python 3.8 - 3.11
 
 # Contact
- - quang.ngohominh@gmail.com
+ - via 41013 subject teams site 
+ - or subject email 41013@uts.edu.au
