@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ir-support"
-version = "1.2.5"
+version = "1.2.6"
 description = "Python package including some classes & functions supporting the subject 41013 Industrial Robotics at UTS, along with the Robotics Toolbox for Python"
 authors = [
     "41013 Teaching Team <41013@uts.edu.au>",
